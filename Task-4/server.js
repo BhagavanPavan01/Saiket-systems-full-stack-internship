@@ -24,32 +24,32 @@ let users = [
     {
         id: 2,
         name: "Tarun",
-        email: "tarun@example.com", 
+        email: "tarun@example.com",
         age: 30
     },
     {
-        id: 1,
+        id: 3,
         name: "Rajesh",
         email: "rajesh@example.com",
-        age: 25
+        age: 26
     },
     {
-        id: 1,
+        id: 4,
         name: "Bhanu",
         email: "bhanu@example.com",
-        age: 25
+        age: 29
     },
     {
-        id: 1,
+        id: 5,
         name: "Tanuja",
         email: "tanu@example.com",
         age: 25
     },
     {
-        id: 1,
+        id: 6,
         name: "Ramya",
         email: "ramya@example.com",
-        age: 25
+        age: 22
     }
 ];
 
@@ -113,29 +113,29 @@ app.get('/users', (request, response) => {
 app.get('/users/:id', (request, response) => {
     try {
         const userId = parseInt(request.params.id);
-        
+
         if (isNaN(userId)) {
             return response.status(400).json({
                 status: "error",
                 message: "Invalid user ID format"
             });
         }
-        
+
         const user = findUserById(userId);
-        
+
         if (!user) {
             return response.status(404).json({
-                status: "error", 
+                status: "error",
                 message: "User not found"
             });
         }
-        
+
         response.json({
             status: "success",
             message: "User found",
             data: user
         });
-        
+
     } catch (error) {
         response.status(500).json({
             status: "error",
@@ -148,7 +148,7 @@ app.get('/users/:id', (request, response) => {
 app.post('/users', (request, response) => {
     try {
         const { name, email, age } = request.body;
-        
+
         // Validate required fields
         if (!name || !email) {
             return response.status(400).json({
@@ -156,7 +156,7 @@ app.post('/users', (request, response) => {
                 message: "Name and email are required fields"
             });
         }
-        
+
         // Validate name length
         if (name.length < 2) {
             return response.status(400).json({
@@ -164,24 +164,25 @@ app.post('/users', (request, response) => {
                 message: "Name must be at least 2 characters long"
             });
         }
-        
+
         // Validate email format
         if (!isValidEmail(email)) {
             return response.status(400).json({
-                status: "error", 
+                status: "error",
                 message: "Invalid email format"
             });
         }
-        
+
         // Check if email already exists
-        const emailExists = users.some(user => user.email === email);
+        const formattedEmail = email.trim().toLowerCase();
+        const emailExists = users.some(user => user.email === formattedEmail);
         if (emailExists) {
             return response.status(400).json({
                 status: "error",
                 message: "Email already exists"
             });
         }
-        
+
         // Validate age if provided
         if (age && (age < 0 || age > 150)) {
             return response.status(400).json({
@@ -189,7 +190,7 @@ app.post('/users', (request, response) => {
                 message: "Age must be between 0 and 150"
             });
         }
-        
+
         // Create new user
         const newUser = {
             id: getNewUserId(),
@@ -197,15 +198,15 @@ app.post('/users', (request, response) => {
             email: email.trim().toLowerCase(),
             age: age ? parseInt(age) : null
         };
-        
+
         users.push(newUser);
-        
+
         response.status(201).json({
             status: "success",
             message: "User created successfully",
             data: newUser
         });
-        
+
     } catch (error) {
         response.status(500).json({
             status: "error",
@@ -219,23 +220,23 @@ app.put('/users/:id', (request, response) => {
     try {
         const userId = parseInt(request.params.id);
         const { name, email, age } = request.body;
-        
+
         if (isNaN(userId)) {
             return response.status(400).json({
                 status: "error",
                 message: "Invalid user ID format"
             });
         }
-        
+
         const user = findUserById(userId);
-        
+
         if (!user) {
             return response.status(404).json({
                 status: "error",
                 message: "User not found"
             });
         }
-        
+
         // Validate required fields
         if (!name || !email) {
             return response.status(400).json({
@@ -243,7 +244,7 @@ app.put('/users/:id', (request, response) => {
                 message: "Name and email are required fields"
             });
         }
-        
+
         // Validate name length
         if (name.length < 2) {
             return response.status(400).json({
@@ -251,7 +252,7 @@ app.put('/users/:id', (request, response) => {
                 message: "Name must be at least 2 characters long"
             });
         }
-        
+
         // Validate email format
         if (!isValidEmail(email)) {
             return response.status(400).json({
@@ -259,16 +260,17 @@ app.put('/users/:id', (request, response) => {
                 message: "Invalid email format"
             });
         }
-        
+
         // Check if email exists for other users
-        const emailExists = users.some(u => u.email === email && u.id !== userId);
+        const formattedEmail = email.trim().toLowerCase();
+        const emailExists = users.some(u => u.email === formattedEmail && u.id !== userId);
         if (emailExists) {
             return response.status(400).json({
                 status: "error",
                 message: "Email already exists for another user"
             });
         }
-        
+
         // Validate age if provided
         if (age && (age < 0 || age > 150)) {
             return response.status(400).json({
@@ -276,18 +278,18 @@ app.put('/users/:id', (request, response) => {
                 message: "Age must be between 0 and 150"
             });
         }
-        
+
         // Update user
         user.name = name.trim();
         user.email = email.trim().toLowerCase();
         user.age = age ? parseInt(age) : null;
-        
+
         response.json({
             status: "success",
             message: "User updated successfully",
             data: user
         });
-        
+
     } catch (error) {
         response.status(500).json({
             status: "error",
@@ -300,31 +302,31 @@ app.put('/users/:id', (request, response) => {
 app.delete('/users/:id', (request, response) => {
     try {
         const userId = parseInt(request.params.id);
-        
+
         if (isNaN(userId)) {
             return response.status(400).json({
                 status: "error",
                 message: "Invalid user ID format"
             });
         }
-        
+
         const userIndex = users.findIndex(user => user.id === userId);
-        
+
         if (userIndex === -1) {
             return response.status(404).json({
                 status: "error",
                 message: "User not found"
             });
         }
-        
+
         const deletedUser = users.splice(userIndex, 1)[0];
-        
+
         response.json({
             status: "success",
             message: "User deleted successfully",
             data: deletedUser
         });
-        
+
     } catch (error) {
         response.status(500).json({
             status: "error",
@@ -340,7 +342,7 @@ app.use('*', (request, response) => {
         message: "Route not found",
         available_routes: [
             "GET /",
-            "GET /users", 
+            "GET /users",
             "GET /users/:id",
             "POST /users",
             "PUT /users/:id",

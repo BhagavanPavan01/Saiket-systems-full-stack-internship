@@ -125,19 +125,19 @@ let cartCount = 0;
 let currentFilter = 'all';
 
 // DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Load products
     loadProducts();
-    
+
     // Setup event listeners
     setupEventListeners();
-    
+
     // Initialize cart count
     updateCartCount();
-    
+
     // Start countdown timer
     startCountdown();
-    
+
     // Check theme preference
     checkThemePreference();
 });
@@ -147,20 +147,20 @@ function setupEventListeners() {
     // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     themeToggle.addEventListener('click', toggleTheme);
-    
+
     // Newsletter form
     const newsletterForm = document.getElementById('newsletterForm');
     newsletterForm.addEventListener('submit', validateNewsletter);
-    
+
     // Contact form
     const contactForm = document.getElementById('contactForm');
     contactForm.addEventListener('submit', validateContactForm);
-    
+
     // Filter buttons
     document.querySelectorAll('[data-filter]').forEach(button => {
         button.addEventListener('click', filterProducts);
     });
-    
+
     // Search functionality
     const searchInput = document.querySelector('input[type="text"]');
     if (searchInput) {
@@ -172,11 +172,11 @@ function setupEventListeners() {
 function loadProducts(filter = 'all') {
     const productGrid = document.getElementById('productGrid');
     productGrid.innerHTML = '';
-    
-    const filteredProducts = filter === 'all' 
-        ? products 
+
+    const filteredProducts = filter === 'all'
+        ? products
         : products.filter(product => product.category === filter);
-    
+
     filteredProducts.forEach(product => {
         const productCard = createProductCard(product);
         productGrid.appendChild(productCard);
@@ -217,10 +217,10 @@ function createProductCard(product) {
                 <p class="card-text flex-grow-1 small">${product.description}</p>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
                     <div class="price">
-                        ${product.originalPrice ? 
-                            `<span class="text-muted text-decoration-line-through me-2">₹${product.originalPrice.toFixed(2)}</span>` : 
-                            ''
-                        }
+                        ${product.originalPrice ?
+            `<span class="text-muted text-decoration-line-through me-2">₹${product.originalPrice.toFixed(2)}</span>` :
+            ''
+        }
                         <span class="h5 mb-0 text-primary">₹${product.price.toFixed(2)}</span>
                     </div>
                     <button class="btn btn-primary add-to-cart" data-id="${product.id}">
@@ -233,28 +233,28 @@ function createProductCard(product) {
             </div>
         </div>
     `;
-    
+
     // Add event listeners to buttons
     const addToCartBtn = productCard.querySelector('.add-to-cart');
     addToCartBtn.addEventListener('click', () => addToCart(product.id));
-    
+
     const quickViewBtn = productCard.querySelector('.quick-view');
     quickViewBtn.addEventListener('click', () => showQuickView(product));
-    
+
     const wishlistBtn = productCard.querySelector('.add-to-wishlist');
     wishlistBtn.addEventListener('click', () => addToWishlist(product.id));
-    
+
     return productCard;
 }
 
 // Add product to cart
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
-    
+
     if (product) {
         // Check if product is already in cart
         const existingItem = cart.find(item => item.id === productId);
-        
+
         if (existingItem) {
             existingItem.quantity += 1;
         } else {
@@ -263,13 +263,13 @@ function addToCart(productId) {
                 quantity: 1
             });
         }
-        
+
         cartCount += 1;
         updateCartCount();
-        
+
         // Show confirmation message
         showNotification(`${product.name} added to cart!`, 'success');
-        
+
         // Update cart modal if open
         updateCartModal();
     }
@@ -294,7 +294,7 @@ function addToWishlist(productId) {
     const product = products.find(p => p.id === productId);
     if (product) {
         showNotification(`${product.name} added to wishlist!`, 'success');
-        
+
         // Toggle heart icon
         const wishlistBtn = document.querySelector(`.add-to-wishlist[data-id="${productId}"]`);
         if (wishlistBtn) {
@@ -310,13 +310,13 @@ function addToWishlist(productId) {
 function filterProducts(event) {
     const filter = event.target.getAttribute('data-filter');
     currentFilter = filter;
-    
+
     // Update active button
     document.querySelectorAll('[data-filter]').forEach(btn => {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     // Load filtered products
     loadProducts(filter);
 }
@@ -324,21 +324,21 @@ function filterProducts(event) {
 // Search products
 function searchProducts(event) {
     const searchTerm = event.target.value.toLowerCase();
-    
+
     if (searchTerm.length < 2) {
         loadProducts(currentFilter);
         return;
     }
-    
-    const filteredProducts = products.filter(product => 
-        product.name.toLowerCase().includes(searchTerm) || 
+
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm) ||
         product.description.toLowerCase().includes(searchTerm) ||
         product.category.toLowerCase().includes(searchTerm)
     );
-    
+
     const productGrid = document.getElementById('productGrid');
     productGrid.innerHTML = '';
-    
+
     filteredProducts.forEach(product => {
         const productCard = createProductCard(product);
         productGrid.appendChild(productCard);
@@ -356,10 +356,10 @@ function showNotification(message, type = 'success') {
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         if (notification.parentNode) {
@@ -373,7 +373,7 @@ function toggleTheme() {
     const body = document.body;
     const themeToggle = document.getElementById('themeToggle');
     const icon = themeToggle.querySelector('i');
-    
+
     if (body.classList.contains('dark-mode')) {
         body.classList.remove('dark-mode');
         icon.classList.remove('fa-sun');
@@ -392,7 +392,7 @@ function checkThemePreference() {
     const savedTheme = localStorage.getItem('theme');
     const themeToggle = document.getElementById('themeToggle');
     const icon = themeToggle.querySelector('i');
-    
+
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
         icon.classList.remove('fa-moon');
@@ -403,22 +403,22 @@ function checkThemePreference() {
 // Validate newsletter form
 function validateNewsletter(event) {
     event.preventDefault();
-    
+
     const email = document.getElementById('newsletterEmail');
     const messageDiv = document.getElementById('newsletterMessage');
-    
+
     // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailRegex.test(email.value)) {
         messageDiv.innerHTML = '<div class="alert alert-danger">Please enter a valid email address.</div>';
         return;
     }
-    
+
     // If validation passes
     messageDiv.innerHTML = '<div class="alert alert-success">Thank you for subscribing to our newsletter!</div>';
     email.value = '';
-    
+
     // Clear message after 5 seconds
     setTimeout(() => {
         messageDiv.innerHTML = '';
@@ -428,45 +428,45 @@ function validateNewsletter(event) {
 // Validate contact form
 function validateContactForm(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const name = document.getElementById('name');
     const email = document.getElementById('email');
     const subject = document.getElementById('subject');
     const message = document.getElementById('message');
-    
+
     let isValid = true;
-    
+
     // Reset validation styles
     [name, email, subject, message].forEach(field => {
         field.classList.remove('is-invalid');
     });
-    
+
     // Validate name
     if (name.value.trim() === '') {
         name.classList.add('is-invalid');
         isValid = false;
     }
-    
+
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.value)) {
         email.classList.add('is-invalid');
         isValid = false;
     }
-    
+
     // Validate subject
     if (subject.value.trim() === '') {
         subject.classList.add('is-invalid');
         isValid = false;
     }
-    
+
     // Validate message
     if (message.value.trim() === '') {
         message.classList.add('is-invalid');
         isValid = false;
     }
-    
+
     // If form is valid
     if (isValid) {
         // In a real application, you would send the form data to a server here
@@ -479,27 +479,27 @@ function validateContactForm(event) {
 function startCountdown() {
     const countdownDate = new Date();
     countdownDate.setDate(countdownDate.getDate() + 7); // 7 days from now
-    
+
     function updateCountdown() {
         const now = new Date().getTime();
         const distance = countdownDate - now;
-        
+
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
+
         document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
         document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
         document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
         document.getElementById('countdown-seconds').textContent = seconds.toString().padStart(2, '0');
-        
+
         if (distance < 0) {
             clearInterval(countdownTimer);
             document.querySelector('.countdown').innerHTML = "Sale Ended!";
         }
     }
-    
+
     updateCountdown();
     const countdownTimer = setInterval(updateCountdown, 1000);
 }
@@ -508,30 +508,28 @@ function startCountdown() {
 function updateCartModal() {
     const cartItems = document.getElementById('cartItems');
     const cartTotal = document.getElementById('cartTotal');
-    
+
     if (!cartItems) return;
-    
+
     cartItems.innerHTML = '';
-    
+
     if (cart.length === 0) {
         cartItems.innerHTML = '<p class="text-center text-muted py-4">Your cart is empty</p>';
         cartTotal.textContent = '0.00';
         return;
     }
-    
+
     let total = 0;
-    
+
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
-        
+
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item d-flex align-items-center';
         cartItem.innerHTML = `
             <div class="cart-item-image me-3">
-                <div class="text-center text-muted">
-                    <i class="fas fa-tshirt fa-lg"></i>
-                </div>
+                <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <div class="flex-grow-1">
                 <h6 class="mb-1">${item.name}</h6>
@@ -549,10 +547,10 @@ function updateCartModal() {
                 </button>
             </div>
         `;
-        
+
         cartItems.appendChild(cartItem);
     });
-    
+
     // Add event listeners to quantity buttons
     document.querySelectorAll('.increase-quantity').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -560,21 +558,21 @@ function updateCartModal() {
             increaseQuantity(id);
         });
     });
-    
+
     document.querySelectorAll('.decrease-quantity').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = parseInt(e.target.closest('button').getAttribute('data-id'));
             decreaseQuantity(id);
         });
     });
-    
+
     document.querySelectorAll('.remove-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = parseInt(e.target.closest('button').getAttribute('data-id'));
             removeFromCart(id);
         });
     });
-    
+
     cartTotal.textContent = total.toFixed(2);
 }
 
