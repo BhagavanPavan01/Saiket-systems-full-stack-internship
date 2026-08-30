@@ -6,7 +6,7 @@ const connectDB = require('./config/db');
 // Load environment variables
 dotenv.config();
 
-// Connect to database
+// Connect to database completely
 connectDB();
 
 const app = express();
@@ -15,9 +15,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/users', require('./routes/users'));
-app.use('/api/ai', require('./routes/ai'));
+// app.use('/api/users', require('./routes/users'));
+// app.use('/api/ai', require('./routes/ai'));
+// app.use('/api/tickets', require('./routes/tickets'));
+// app.use('/api/students', require('./routes/students'));
+app.use('/api/system', require('./routes/system'));
 
 // Health check route
 app.get('/', (req, res) => {

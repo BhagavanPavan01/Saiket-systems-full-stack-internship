@@ -1,0 +1,9 @@
+const SystemUser = require '../models/SystemUser';
+const Attendance = require '../models/Attendance';
+const Score = require '../models/Score';
+const Certificate = require '../models/Certificate';
+
+  // Auth / Login
+  // Generic RBAC CRUD for students
+  // Generic RBAC CRUD for teachers
+  // Details
