@@ -27,8 +27,8 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (role, email, password) => {
-    const res = await axios.post(`${API_URL}/auth/${role}/login`, { email, password });
+  const login = async (email, password) => {
+    const res = await axios.post(`${API_URL}/auth/login`, { email, password });
     setUser(res.data);
     localStorage.setItem('sml_user', JSON.stringify(res.data));
     axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
@@ -120,8 +120,35 @@ const Header = ({ title, setMobileOpen, mobileOpen }) => (
 );
 
 // --- PAGES ---
+// Home Page Component
+const HomePage = () => {
+  const navigate = useNavigate();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+      <header style={{ padding: '20px 40px', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 'bold', fontSize: '24px' }}>
+          <GraduationCap size={32} />
+          <span>Bpcreatives</span>
+        </div>
+        <button onClick={() => navigate('/login')} style={{ padding: '10px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+          Login Portal
+        </button>
+      </header>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '48px', color: '#1f2937', marginBottom: '20px', fontWeight: '800' }}>Student Management System</h1>
+        <p style={{ fontSize: '18px', color: '#4b5563', maxWidth: '600px', marginBottom: '40px' }}>Streamline your educational journey with our comprehensive management platform. Designed for students, teachers, and administrators.</p>
+        <button onClick={() => navigate('/login')} style={{ padding: '16px 32px', background: '#e11d48', color: 'white', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(225, 29, 72, 0.3)' }}>
+          Get Started
+        </button>
+      </main>
+      <footer style={{ padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '14px', background: 'white' }}>
+        &copy; {new Date().getFullYear()} Bpcreatives. All rights reserved.
+      </footer>
+    </div>
+  );
+};
+
 const Login = () => {
-  const [role, setRole] = useState('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
@@ -130,7 +157,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const u = await login(role, email, password);
+      const u = await login(email, password);
       navigate(`/${u.role}/dashboard`);
     } catch (err) {
       console.error("Login failed stack:", err);
@@ -145,16 +172,10 @@ const Login = () => {
           <div style={{ background: '#ffe4e6', color: '#e11d48', padding: '8px', borderRadius: '8px' }}><GraduationCap size={24} /></div>
           <h2 style={{ fontSize: '18px', fontWeight: 600 }}>EduManage Login</h2>
         </div>
-        <p style={{ textAlign: 'center', fontSize: '12px', color: '#666', marginBottom: '20px' }}>Select role to simulate RBAC logic.</p>
-        <select value={role} onChange={e => setRole(e.target.value)} style={{ width: '100%', padding: '10px', marginBottom: '12px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-          <option value="admin">Admin Portal</option>
-          <option value="teacher">Teacher Portal</option>
-          <option value="student">Student Portal</option>
-        </select>
+        <p style={{ textAlign: 'center', fontSize: '12px', color: '#666', marginBottom: '20px' }}>Sign in to access your portal.</p>
         <input type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: '10px', marginBottom: '12px', border: '1px solid #e5e7eb', borderRadius: '6px' }} />
         <input type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)} style={{ width: '100%', padding: '10px', marginBottom: '24px', border: '1px solid #e5e7eb', borderRadius: '6px' }} />
         <button type="submit" style={{ width: '100%', padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Secure Login</button>
-        <p style={{ marginTop: '16px', fontSize: '11px', color: '#999', textAlign: 'center' }}>admin@school.com / adminpassword <br /> teacher@school.com / teacherpassword <br /> Jason@gmail.com / password123</p>
       </form>
     </div>
   );
@@ -199,7 +220,7 @@ const StudentsList = () => {
   );
 };
 
-// Dashboards
+// Admin Dashboard features
 const AdminDashboard = () => (
   <div>
     <h1 className="page-title" style={{ marginBottom: '24px' }}>Platform Overview</h1>
@@ -210,6 +231,155 @@ const AdminDashboard = () => (
     </div>
   </div>
 );
+
+const AdminUsers = ({ roleType }) => {
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: roleType, department: '', grade: '' });
+
+  const fetchUsers = () => {
+    axios.get(`${API_URL}/users?role=${roleType}`).then(res => setUsers(res.data)).catch(console.error);
+  };
+
+  useEffect(() => { fetchUsers(); }, [roleType]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/users`, form);
+      alert('User created!');
+      setForm({ name: '', email: '', password: '', role: roleType, department: '', grade: '' });
+      fetchUsers();
+    } catch (err) {
+      alert('Error creating user: ' + err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      await axios.delete(`${API_URL}/users/${id}`);
+      fetchUsers();
+    }
+  };
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '24px' }}>
+      <div className="student-card">
+        <h3>Create {roleType}</h3>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+          <input type="text" placeholder="Name" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          <input type="email" placeholder="Email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          <input type="password" placeholder="Password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          {roleType === 'student' && (
+            <>
+              <input type="text" placeholder="Department" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <input type="text" placeholder="Grade/Class" value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+            </>
+          )}
+          <button type="submit" style={{ padding: '10px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Add {roleType}</button>
+        </form>
+      </div>
+      <div className="student-card" style={{ height: 'fit-content' }}>
+        <h3>Existing {roleType}s</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+          {users.map(u => (
+            <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
+              <div>
+                <strong>{u.name}</strong>
+                <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>{u.email} {u.department ? `- ${u.department}` : ''}</p>
+              </div>
+              <button onClick={() => handleDelete(u._id)} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+            </div>
+          ))}
+          {users.length === 0 && <p style={{ color: '#9ca3af' }}>No {roleType}s found.</p>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TeacherPortal = () => {
+  const [students, setStudents] = useState([]);
+  const [form, setForm] = useState({ studentId: '', type: 'attendance', date: '', status: 'Present', subject: '', marks: '', maxMarks: '' });
+
+  useEffect(() => {
+    axios.get(`${API_URL}/users?role=student`).then(res => setStudents(res.data)).catch(console.error);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (form.type === 'attendance') {
+        await axios.post(`${API_URL}/attendance`, { student: form.studentId, date: form.date, status: form.status });
+        alert('Attendance added successfully!');
+      } else {
+        const grade = (form.marks / form.maxMarks) >= 0.9 ? 'A+' : (form.marks / form.maxMarks) >= 0.8 ? 'A' : (form.marks / form.maxMarks) >= 0.7 ? 'B' : 'C';
+        await axios.post(`${API_URL}/scores`, {
+          student: form.studentId,
+          course: form.subject,
+          subject: form.subject,
+          marks: Number(form.marks),
+          totalMarks: Number(form.maxMarks),
+          grade
+        });
+        alert('Marks assigned successfully!');
+      }
+      setForm({ ...form, subject: '', marks: '', maxMarks: '' });
+    } catch (err) {
+      alert('Error submitting data: ' + err.message);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <h1 className="page-title">Teacher Action Dashboard</h1>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 2fr', gap: '24px' }}>
+        <div className="student-card">
+          <h3>Record Academic Data</h3>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+              <option value="attendance">Add Student Attendance</option>
+              <option value="marks">Assign Marks / Conduct Assignment</option>
+            </select>
+            <select required value={form.studentId} onChange={e => setForm({ ...form, studentId: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+              <option value="">-- Select Student --</option>
+              {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.email})</option>)}
+            </select>
+
+            {form.type === 'attendance' ? (
+              <>
+                <input type="date" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                </select>
+              </>
+            ) : (
+              <>
+                <input type="text" placeholder="Subject / Assignment Name" required value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input type="number" placeholder="Marks Obtained" required value={form.marks} onChange={e => setForm({ ...form, marks: e.target.value })} style={{ padding: '10px', flex: 1, border: '1px solid #ccc', borderRadius: '4px' }} />
+                  <input type="number" placeholder="Max Marks" required value={form.maxMarks} onChange={e => setForm({ ...form, maxMarks: e.target.value })} style={{ padding: '10px', flex: 1, border: '1px solid #ccc', borderRadius: '4px' }} />
+                </div>
+              </>
+            )}
+            <button type="submit" style={{ padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }}>
+              Submit Data
+            </button>
+          </form>
+        </div>
+        <div className="student-card">
+          <h3>Quick Help</h3>
+          <p style={{ color: '#4b5563', lineHeight: '1.6' }}>
+            Welcome to the Teacher Action Board. From here you can manage all primary interactions with your students.<br /><br />
+            - <strong>Attendance:</strong> Select a date and mark a student Present or Absent.<br />
+            - <strong>Assignments:</strong> Input the assignment name, scored marks, and maximum possible marks. The grade will be calculated automatically based on standard percentages.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const StudentDashboard = () => {
   const [data, setData] = useState(null);
@@ -252,6 +422,16 @@ const StudentDashboard = () => {
             </div>)}
             {certificates.length === 0 && <p style={{ color: '#999' }}>No certificates earned yet.</p>}
           </div>
+          <div className="student-card">
+            <h3 style={{ marginBottom: '16px' }}>Attendance History</h3>
+            {attendance.map(a => (
+              <div key={a._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eee' }}>
+                <span>{new Date(a.date).toLocaleDateString()}</span>
+                <strong style={{ color: a.status === 'Present' ? '#16a34a' : '#ef4444' }}>{a.status}</strong>
+              </div>
+            ))}
+            {attendance.length === 0 && <p style={{ color: '#999' }}>No attendance records.</p>}
+          </div>
         </div>
       </div>
     </div>
@@ -287,13 +467,14 @@ const MainRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={!user ? <Login /> : <Navigate to={`/${user.role}/dashboard`} />} />
+        <Route path="/" element={!user ? <HomePage /> : <Navigate to={`/${user.role}/dashboard`} />} />
+        <Route path="/login" element={!user ? <Login /> : <Navigate to={`/${user.role}/dashboard`} />} />
 
         <Route path="/admin/dashboard" element={<PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>} />
-        <Route path="/admin/students" element={<PrivateRoute roles={['admin']}><StudentsList /></PrivateRoute>} />
-        <Route path="/admin/teachers" element={<PrivateRoute roles={['admin']}><div className="student-card"><h3>Teacher Management</h3><p>Manage faculty permissions and roles here.</p></div></PrivateRoute>} />
+        <Route path="/admin/students" element={<PrivateRoute roles={['admin']}><AdminUsers roleType="student" /></PrivateRoute>} />
+        <Route path="/admin/teachers" element={<PrivateRoute roles={['admin']}><AdminUsers roleType="teacher" /></PrivateRoute>} />
 
-        <Route path="/teacher/dashboard" element={<PrivateRoute roles={['teacher']}><div className="student-card"><h3>Teacher Portal</h3><p>Quick lookup of assigned students.</p></div></PrivateRoute>} />
+        <Route path="/teacher/dashboard" element={<PrivateRoute roles={['teacher']}><TeacherPortal /></PrivateRoute>} />
         <Route path="/teacher/students" element={<PrivateRoute roles={['teacher']}><StudentsList /></PrivateRoute>} />
 
         <Route path="/student/dashboard" element={<PrivateRoute roles={['student']}><StudentDashboard /></PrivateRoute>} />

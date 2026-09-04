@@ -36,28 +36,27 @@ const authorize = (...roles) => {
 const generateToken = (id) => jwt.sign({ id: id.toString() }, process.env.JWT_SECRET || 'mysecretkey', { expiresIn: '30d' });
 
 // AUTHENTICATION
-router.post('/auth/:role/login', async (req, res) => {
+router.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
-    const { role } = req.params; // admin, teacher, student
 
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password required' });
     }
     const cleanEmail = email.trim();
-    console.log(`[LOGIN ATTEMPT] role: ${role}, email: '${cleanEmail}'`);
+    console.log(`[LOGIN ATTEMPT] email: '${cleanEmail}'`);
 
     try {
-        // Case-insensitive regex search for email
-        const user = await SystemUser.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i'), role });
+        // Case-insensitive regex search for email, regardless of role
+        const user = await SystemUser.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') });
 
         if (!user) {
-            console.log(`[LOGIN FAILED] User not found or mismatch role: ${role} email: ${cleanEmail}`);
+            console.log(`[LOGIN FAILED] User not found: email: ${cleanEmail}`);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isMatch = await user.comparePassword(password);
         if (isMatch) {
-            console.log(`[LOGIN SUCCESS] ${cleanEmail}`);
+            console.log(`[LOGIN SUCCESS] ${cleanEmail} logged in as ${user.role}`);
             res.json({
                 _id: user._id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id)
             });
