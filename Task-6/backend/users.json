@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "6a92ea43c81ae1146fea3fe3",
+    "name": "Admin User",
+    "email": "bhagavanpavanadmin@gmail.com",
+    "password": "$2a$10$G8p13e/oOTJFFCdhNLezMesWMghlnPr8Zohdyh7e/S64Fi182PIP6",
+    "role": "admin",
+    "phone": "1234567890",
+    "address": "Admin Blvd",
+    "photo": "https://via.placeholder.com/150",
+    "subjects": [],
+    "assignedStudents": [],
+    "createdAt": "2026-08-29T14:18:43.881Z",
+    "updatedAt": "2026-09-07T14:38:12.004Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a9ed0de6ff3a9ff16682d65",
+    "name": "Killi Anil",
+    "email": "anil@gmail.com",
+    "password": "$2a$10$en3Kxbl1qfDzsyjNeEWCv.9Jxcq1mbX4vtnnzgjWVtK4a26wWERoC",
+    "role": "student",
+    "photo": "https://via.placeholder.com/150",
+    "grade": "A",
+    "department": "MCA",
+    "subjects": [],
+    "assignedStudents": [],
+    "createdAt": "2026-09-07T14:57:34.465Z",
+    "updatedAt": "2026-09-07T14:57:34.465Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a9ed0fd6ff3a9ff16682d6c",
+    "name": "Amarapu Bhanu",
+    "email": "bhanu@gmail.com",
+    "password": "$2a$10$r/dX/GY/qvgoJtrb7y50MuJL8DL12wnkAy3zmQCyW3Kk7u9zG4hC.",
+    "role": "student",
+    "photo": "https://via.placeholder.com/150",
+    "grade": "",
+    "department": "",
+    "subjects": [],
+    "assignedStudents": [],
+    "createdAt": "2026-09-07T14:58:05.854Z",
+    "updatedAt": "2026-09-07T14:58:05.854Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a9ed1a76ff3a9ff16682d75",
+    "name": "Edakula Sai Kumar",
+    "email": "esai@gmail.com",
+    "password": "$2a$10$dEmKUlqfyuDhot1Y89KdH.HApb3mPTZ.YQpUmiNSdfcdIREb/9B4e",
+    "role": "student",
+    "photo": "https://via.placeholder.com/150",
+    "grade": "B",
+    "department": "MCA",
+    "subjects": [],
+    "assignedStudents": [],
+    "createdAt": "2026-09-07T15:00:55.867Z",
+    "updatedAt": "2026-09-07T15:00:55.867Z",
+    "__v": 0
+  }
+]

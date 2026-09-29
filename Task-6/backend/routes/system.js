@@ -58,7 +58,7 @@ router.post('/auth/login', async (req, res) => {
         if (isMatch) {
             console.log(`[LOGIN SUCCESS] ${cleanEmail} logged in as ${user.role}`);
             res.json({
-                _id: user._id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id)
+                _id: user._id, name: user.name, email: user.email, role: user.role, photo: user.photo, token: generateToken(user._id)
             });
         } else {
             console.log(`[LOGIN FAILED] Bad password for ${cleanEmail}`);
@@ -73,13 +73,17 @@ router.get('/auth/me', protect, (req, res) => res.json(req.user));
 
 // USERS (Admin creates teachers/students)
 router.get('/users', protect, authorize('admin', 'teacher'), async (req, res) => {
-    const { role } = req.query;
-    const query = role ? { role } : {};
-    // if teacher, they can only get students
-    if (req.user.role === 'teacher') query.role = 'student';
+    try {
+        const { role } = req.query;
+        const query = role ? { role } : {};
+        // if teacher, they can only get students
+        if (req.user.role === 'teacher') query.role = 'student';
 
-    const users = await SystemUser.find(query).select('-password');
-    res.json(users);
+        const users = await SystemUser.find(query).select('-password');
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 router.post('/users', protect, authorize('admin'), async (req, res) => {
@@ -92,62 +96,98 @@ router.post('/users', protect, authorize('admin'), async (req, res) => {
 });
 
 router.put('/users/:id', protect, authorize('admin', 'teacher'), async (req, res) => {
-    if (req.user.role === 'teacher') {
-        // Basic verification allowing teachers to edit specific fields could go here
+    try {
+        if (req.user.role === 'teacher') {
+            // Basic verification allowing teachers to edit specific fields could go here
+        }
+        const user = await SystemUser.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+        res.json(user);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
-    const user = await SystemUser.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
-    res.json(user);
 });
 
 router.delete('/users/:id', protect, authorize('admin'), async (req, res) => {
-    await SystemUser.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User removed' });
+    try {
+        await SystemUser.findByIdAndDelete(req.params.id);
+        res.json({ message: 'User removed' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // STUDENT PROFILE (Self)
 router.get('/myprofile', protect, async (req, res) => {
-    const profile = await SystemUser.findById(req.user._id).select('-password');
-    const attendance = await Attendance.find({ student: req.user._id });
-    const scores = await Score.find({ student: req.user._id });
-    const certificates = await Certificate.find({ student: req.user._id });
-    res.json({ profile, attendance, scores, certificates });
+    try {
+        const profile = await SystemUser.findById(req.user._id).select('-password');
+        const attendance = await Attendance.find({ student: req.user._id });
+        const scores = await Score.find({ student: req.user._id });
+        const certificates = await Certificate.find({ student: req.user._id });
+        res.json({ profile, attendance, scores, certificates });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // ATTENDANCE
 router.get('/attendance', protect, async (req, res) => {
-    // admin/teacher sees all (or filtered). Student sees only their own.
-    const query = req.user.role === 'student' ? { student: req.user._id } : {};
-    const data = await Attendance.find(query).populate('student', 'name');
-    res.json(data);
+    try {
+        // admin/teacher sees all (or filtered). Student sees only their own.
+        const query = req.user.role === 'student' ? { student: req.user._id } : {};
+        const data = await Attendance.find(query).populate('student', 'name');
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 router.post('/attendance', protect, authorize('admin', 'teacher'), async (req, res) => {
-    const doc = await Attendance.create({ ...req.body, teacher: req.user._id });
-    res.json(doc);
+    try {
+        const doc = await Attendance.create({ ...req.body, teacher: req.user._id });
+        res.json(doc);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 // SCORES
 router.get('/scores', protect, async (req, res) => {
-    const query = req.user.role === 'student' ? { student: req.user._id } : {};
-    const data = await Score.find(query).populate('student', 'name grade course');
-    res.json(data);
+    try {
+        const query = req.user.role === 'student' ? { student: req.user._id } : {};
+        const data = await Score.find(query).populate('student', 'name grade course');
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 router.post('/scores', protect, authorize('admin', 'teacher'), async (req, res) => {
-    const doc = await Score.create({ ...req.body, teacher: req.user._id });
-    res.json(doc);
+    try {
+        const doc = await Score.create({ ...req.body, teacher: req.user._id });
+        res.json(doc);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 // CERTIFICATES
 router.get('/certificates', protect, async (req, res) => {
-    const query = req.user.role === 'student' ? { student: req.user._id } : {};
-    const data = await Certificate.find(query).populate('student', 'name');
-    res.json(data);
+    try {
+        const query = req.user.role === 'student' ? { student: req.user._id } : {};
+        const data = await Certificate.find(query).populate('student', 'name');
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 router.post('/certificates', protect, authorize('admin', 'teacher'), async (req, res) => {
-    const doc = await Certificate.create(req.body);
-    res.json(doc);
+    try {
+        const doc = await Certificate.create(req.body);
+        res.json(doc);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 module.exports = router;

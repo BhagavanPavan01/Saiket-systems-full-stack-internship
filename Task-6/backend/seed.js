@@ -15,7 +15,7 @@ async function seed() {
 
         // Admin
         const admin = await SystemUser.create({
-            name: 'Admin User', email: 'admin@school.com', password: 'adminpassword', role: 'admin',
+            name: 'Admin User', email: 'bhagavanpavanadmin@gmail.com', password: 'PavanAdmin@123', role: 'admin',
             phone: '1234567890', address: 'Admin Blvd'
         });
 

@@ -94,8 +94,15 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             </ul>
           </div>
         ))}
-        <div className="nav-section" style={{ marginTop: 'auto' }}>
+        <div className="nav-section" style={{ marginTop: 'auto', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
           <ul className="nav-list">
+            <li style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+              <img src={user?.photo || 'https://via.placeholder.com/150'} alt="Profile" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid #2563eb' }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{user?.name}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-gray)', textTransform: 'capitalize' }}>{user?.role}</span>
+              </div>
+            </li>
             <li className="nav-item" onClick={() => { logout(); navigate('/') }} style={{ color: '#e11d48' }}>
               <LogOut size={18} /> <span>Log out ({user?.name.split(' ')[0]})</span>
             </li>
@@ -120,29 +127,49 @@ const Header = ({ title, setMobileOpen, mobileOpen }) => (
 );
 
 // --- PAGES ---
-// Home Page Component
 const HomePage = () => {
   const navigate = useNavigate();
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-      <header style={{ padding: '20px 40px', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 'bold', fontSize: '24px' }}>
-          <GraduationCap size={32} />
-          <span>Bpcreatives</span>
+    <div className="landing-container">
+      <div className="bg-shapes">
+        <div className="shape-1"></div>
+        <div className="shape-2"></div>
+      </div>
+      <header className="landing-header">
+        <div className="landing-brand">
+          <GraduationCap size={36} />
+          <span>EduManage</span>
         </div>
-        <button onClick={() => navigate('/login')} style={{ padding: '10px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+        <button className="landing-btn-login" onClick={() => navigate('/login')}>
           Login Portal
         </button>
       </header>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '48px', color: '#1f2937', marginBottom: '20px', fontWeight: '800' }}>Student Management System</h1>
-        <p style={{ fontSize: '18px', color: '#4b5563', maxWidth: '600px', marginBottom: '40px' }}>Streamline your educational journey with our comprehensive management platform. Designed for students, teachers, and administrators.</p>
-        <button onClick={() => navigate('/login')} style={{ padding: '16px 32px', background: '#e11d48', color: 'white', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(225, 29, 72, 0.3)' }}>
+      <main className="landing-main">
+        <h1 className="landing-title">The Future of <span>Education Management</span></h1>
+        <p className="landing-subtitle">An intelligent ecosystem seamlessly connecting students, forward-thinking educators, and administrators on one robust platform.</p>
+        <button className="landing-btn-primary" onClick={() => navigate('/login')}>
           Get Started
         </button>
+        <div className="landing-features">
+          <div className="landing-feature-card">
+            <div className="feature-icon-wrap"><Users size={24} /></div>
+            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Smart Profiles</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.5 }}>Personalized dashboards with rich media for both students and faculty.</p>
+          </div>
+          <div className="landing-feature-card">
+            <div className="feature-icon-wrap"><Activity size={24} /></div>
+            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Live Tracking</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.5 }}>Monitor performance, attendance rates, and assignment completion effortlessly.</p>
+          </div>
+          <div className="landing-feature-card">
+            <div className="feature-icon-wrap"><Award size={24} /></div>
+            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Certifications</h3>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.5 }}>Blockchain-ready certificate issuance right into student portfolios.</p>
+          </div>
+        </div>
       </main>
-      <footer style={{ padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '14px', background: 'white' }}>
-        &copy; {new Date().getFullYear()} Bpcreatives. All rights reserved.
+      <footer className="landing-footer">
+        &copy; {new Date().getFullYear()} Bpcreatives & EduManage Systems. All rights reserved.
       </footer>
     </div>
   );
@@ -192,6 +219,14 @@ const StudentsList = () => {
 
   const filtered = students.filter(s => s.name?.toLowerCase().includes(search.toLowerCase()));
 
+  // Group students by their grade
+  const grouped = filtered.reduce((acc, st) => {
+    const grade = st.grade || 'Unassigned';
+    if (!acc[grade]) acc[grade] = [];
+    acc[grade].push(st);
+    return acc;
+  }, {});
+
   return (
     <div>
       <div className="content-header">
@@ -201,40 +236,75 @@ const StudentsList = () => {
           <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="filter-input hover-focus" style={{ padding: '8px 12px 8px 32px', borderRadius: '8px', border: '1px solid #e5e7eb' }} />
         </div>
       </div>
-      <div className="students-grid">
-        {filtered.map(st => (
-          <div className="student-column" key={st._id}>
-            <div className="grade-badge">{st.grade} <span className="grade-count">1</span></div>
-            <div className="student-card">
-              <h3 className="student-name">{st.name}</h3>
-              <div className="student-photo-wrapper"><img src={st.photo} alt={st.name} className="student-photo" /></div>
-              <div className="student-details">
-                <div className="detail-group"><label>Email</label><p className="detail-val">{st.email}</p></div>
-                <div className="detail-group"><label>Department</label><p className="detail-val">{st.department || 'N/A'}</p></div>
-              </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        {Object.keys(grouped).map(grade => (
+          <div className="student-column" key={grade}>
+            <div className="grade-badge">{grade} <span className="grade-count">{grouped[grade].length}</span></div>
+            <div className="students-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '10px' }}>
+              {grouped[grade].map(st => (
+                <div className="student-card" key={st._id}>
+                  <h3 className="student-name">{st.name}</h3>
+                  <div className="student-photo-wrapper"><img src={st.photo} alt={st.name} className="student-photo" /></div>
+                  <div className="student-details">
+                    <div className="detail-group"><label>Email</label><p className="detail-val">{st.email}</p></div>
+                    <div className="detail-group"><label>Department</label><p className="detail-val">{st.department || 'N/A'}</p></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
+        {Object.keys(grouped).length === 0 && <p style={{ color: '#9ca3af', textAlign: 'center', marginTop: '40px' }}>No students found.</p>}
       </div>
     </div>
   );
 };
 
 // Admin Dashboard features
-const AdminDashboard = () => (
-  <div>
-    <h1 className="page-title" style={{ marginBottom: '24px' }}>Platform Overview</h1>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
-      <div className="student-card"><h3 style={{ fontSize: '14px', color: '#666' }}>Total Students</h3><p style={{ fontSize: '32px', fontWeight: 'bold' }}>2</p></div>
-      <div className="student-card"><h3 style={{ fontSize: '14px', color: '#666' }}>Total Teachers</h3><p style={{ fontSize: '32px', fontWeight: 'bold' }}>1</p></div>
-      <div className="student-card"><h3 style={{ fontSize: '14px', color: '#666' }}>System Health</h3><p style={{ fontSize: '32px', fontWeight: 'bold', color: 'green' }}>99%</p></div>
+const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ students: 0, teachers: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [studentsRes, teachersRes] = await Promise.all([
+          axios.get(`${API_URL}/users?role=student`),
+          axios.get(`${API_URL}/users?role=teacher`)
+        ]);
+        setStats({ students: studentsRes.data.length, teachers: teachersRes.data.length });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  return (
+    <div>
+      <h1 className="page-title" style={{ marginBottom: '24px' }}>Platform Overview</h1>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(250px, 1fr) minmax(250px, 1fr)', gap: '20px' }}>
+        <div className="student-card" onClick={() => navigate('/admin/students')} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+          <h3 style={{ fontSize: '14px', color: '#666' }}>Total Students</h3>
+          <p style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.students}</p>
+        </div>
+        <div className="student-card" onClick={() => navigate('/admin/teachers')} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+          <h3 style={{ fontSize: '14px', color: '#666' }}>Total Teachers</h3>
+          <p style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.teachers}</p>
+        </div>
+        <div className="student-card">
+          <h3 style={{ fontSize: '14px', color: '#666' }}>System Health</h3>
+          <p style={{ fontSize: '32px', fontWeight: 'bold', color: 'green' }}>99%</p>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AdminUsers = ({ roleType }) => {
   const [users, setUsers] = useState([]);
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: roleType, department: '', grade: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: roleType, department: '', grade: '', photo: '' });
 
   const fetchUsers = () => {
     axios.get(`${API_URL}/users?role=${roleType}`).then(res => setUsers(res.data)).catch(console.error);
@@ -245,9 +315,9 @@ const AdminUsers = ({ roleType }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/users`, form);
+      await axios.post(`${API_URL}/users`, { ...form, role: roleType });
       alert('User created!');
-      setForm({ name: '', email: '', password: '', role: roleType, department: '', grade: '' });
+      setForm({ name: '', email: '', password: '', role: roleType, department: '', grade: '', photo: '' });
       fetchUsers();
     } catch (err) {
       alert('Error creating user: ' + err.response?.data?.message || err.message);
@@ -269,6 +339,7 @@ const AdminUsers = ({ roleType }) => {
           <input type="text" placeholder="Name" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
           <input type="email" placeholder="Email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
           <input type="password" placeholder="Password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          <input type="url" placeholder="Profile Photo URL (optional)" value={form.photo} onChange={e => setForm({ ...form, photo: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
           {roleType === 'student' && (
             <>
               <input type="text" placeholder="Department" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
@@ -283,9 +354,12 @@ const AdminUsers = ({ roleType }) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
           {users.map(u => (
             <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
-              <div>
-                <strong>{u.name}</strong>
-                <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>{u.email} {u.department ? `- ${u.department}` : ''}</p>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <img src={u.photo || 'https://via.placeholder.com/40'} alt={u.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                <div>
+                  <strong>{u.name}</strong>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>{u.email} {u.department ? `- ${u.department}` : ''}</p>
+                </div>
               </div>
               <button onClick={() => handleDelete(u._id)} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
             </div>
@@ -298,32 +372,53 @@ const AdminUsers = ({ roleType }) => {
 };
 
 const TeacherPortal = () => {
+  const { user } = useContext(AuthContext);
   const [students, setStudents] = useState([]);
-  const [form, setForm] = useState({ studentId: '', type: 'attendance', date: '', status: 'Present', subject: '', marks: '', maxMarks: '' });
+  const [type, setType] = useState('attendance');
+
+  const [meta, setMeta] = useState({ date: new Date().toISOString().split('T')[0], subject: '', maxMarks: '100' });
+  const [records, setRecords] = useState({});
 
   useEffect(() => {
     axios.get(`${API_URL}/users?role=student`).then(res => setStudents(res.data)).catch(console.error);
   }, []);
 
+  useEffect(() => {
+    const initial = {};
+    students.forEach(s => {
+      initial[s._id] = type === 'attendance' ? 'Present' : '';
+    });
+    setRecords(initial);
+  }, [type, students]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (form.type === 'attendance') {
-        await axios.post(`${API_URL}/attendance`, { student: form.studentId, date: form.date, status: form.status });
-        alert('Attendance added successfully!');
+      if (!meta.subject) return alert('Please enter a subject!');
+
+      const promises = [];
+      if (type === 'attendance') {
+        for (const st of students) {
+          promises.push(axios.post(`${API_URL}/attendance`, { student: st._id, date: meta.date, status: records[st._id], subject: meta.subject }));
+        }
       } else {
-        const grade = (form.marks / form.maxMarks) >= 0.9 ? 'A+' : (form.marks / form.maxMarks) >= 0.8 ? 'A' : (form.marks / form.maxMarks) >= 0.7 ? 'B' : 'C';
-        await axios.post(`${API_URL}/scores`, {
-          student: form.studentId,
-          course: form.subject,
-          subject: form.subject,
-          marks: Number(form.marks),
-          totalMarks: Number(form.maxMarks),
-          grade
-        });
-        alert('Marks assigned successfully!');
+        for (const st of students) {
+          if (records[st._id] !== '') {
+            const marks = Number(records[st._id]);
+            const max = Number(meta.maxMarks);
+            const ratio = marks / max;
+            const grade = ratio >= 0.9 ? 'A+' : ratio >= 0.8 ? 'A' : ratio >= 0.7 ? 'B' : ratio >= 0.6 ? 'C' : 'F';
+            promises.push(axios.post(`${API_URL}/scores`, { student: st._id, course: meta.subject, subject: meta.subject, marks, totalMarks: max, grade }));
+          }
+        }
       }
-      setForm({ ...form, subject: '', marks: '', maxMarks: '' });
+      await Promise.all(promises);
+      alert('Data successfully recorded for all students!');
+
+      const initial = {};
+      students.forEach(s => initial[s._id] = type === 'attendance' ? 'Present' : '');
+      setRecords(initial);
+      setMeta({ ...meta, subject: '' });
     } catch (err) {
       alert('Error submitting data: ' + err.message);
     }
@@ -333,47 +428,107 @@ const TeacherPortal = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <h1 className="page-title">Teacher Action Dashboard</h1>
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 2fr', gap: '24px' }}>
-        <div className="student-card">
-          <h3>Record Academic Data</h3>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
-              <option value="attendance">Add Student Attendance</option>
-              <option value="marks">Assign Marks / Conduct Assignment</option>
-            </select>
-            <select required value={form.studentId} onChange={e => setForm({ ...form, studentId: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
-              <option value="">-- Select Student --</option>
-              {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.email})</option>)}
-            </select>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="student-card" style={{ height: 'fit-content' }}>
+            <div className="student-photo-wrapper"><img src={user?.photo || 'https://via.placeholder.com/150'} className="student-photo" alt={user?.name} /></div>
+            <h3 className="student-name" style={{ marginTop: '12px' }}>{user?.name}</h3>
+            <div className="detail-group"><label>Email</label><p>{user?.email}</p></div>
+            <div className="detail-group"><label>Role</label><p style={{ textTransform: 'capitalize' }}>{user?.role}</p></div>
+          </div>
+          <div className="student-card">
+            <h3>Quick Help</h3>
+            <p style={{ color: '#4b5563', lineHeight: '1.6' }}>
+              <strong>Bulk Mode Enabled:</strong> Mark all students simultaneously.<br /><br />
+              - Select <b>Attendance</b> or <b>Marks</b>.<br />
+              - Fill in standard info (Subject/Date/Max).<br />
+              - Adjust individual student rows.<br />
+              - Press Submit to record everyone at once!
+            </p>
+          </div>
+        </div>
 
-            {form.type === 'attendance' ? (
-              <>
-                <input type="date" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
-                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
-                  <option value="Present">Present</option>
-                  <option value="Absent">Absent</option>
+        <div className="student-card" style={{ height: 'fit-content' }}>
+          <h3>Record Academic Data (Bulk Entry)</h3>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Record Type</label>
+                <select value={type} onChange={e => setType(e.target.value)} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                  <option value="attendance">Class Attendance</option>
+                  <option value="marks">Assign Marks</option>
                 </select>
-              </>
-            ) : (
-              <>
-                <input type="text" placeholder="Subject / Assignment Name" required value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input type="number" placeholder="Marks Obtained" required value={form.marks} onChange={e => setForm({ ...form, marks: e.target.value })} style={{ padding: '10px', flex: 1, border: '1px solid #ccc', borderRadius: '4px' }} />
-                  <input type="number" placeholder="Max Marks" required value={form.maxMarks} onChange={e => setForm({ ...form, maxMarks: e.target.value })} style={{ padding: '10px', flex: 1, border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Subject / Course</label>
+                <input type="text" required placeholder="E.g., Mathematics" value={meta.subject} onChange={e => setMeta({ ...meta, subject: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px' }}>
+              {type === 'attendance' ? (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Date</label>
+                  <input type="date" required value={meta.date} onChange={e => setMeta({ ...meta, date: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
                 </div>
-              </>
-            )}
-            <button type="submit" style={{ padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }}>
-              Submit Data
+              ) : (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Maximum Marks</label>
+                  <input type="number" required min="1" value={meta.maxMarks} onChange={e => setMeta({ ...meta, maxMarks: e.target.value })} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
+                </div>
+              )}
+            </div>
+
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ background: '#f9fafb' }}>
+                  <tr>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>Student Name</th>
+                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '1px solid #e5e7eb' }}>
+                      {type === 'attendance' ? 'Status' : 'Marks Obtained'}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map(st => (
+                    <tr key={st._id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img src={st.photo || 'https://via.placeholder.com/40'} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} alt={st.name} />
+                          <div>
+                            <div style={{ fontWeight: 500 }}>{st.name}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{st.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'right' }}>
+                        {type === 'attendance' ? (
+                          <div style={{ display: 'inline-flex', gap: '8px' }}>
+                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', color: records[st._id] === 'Present' ? '#16a34a' : '#6b7280' }}>
+                              <input type="radio" value="Present" checked={records[st._id] === 'Present'} onChange={() => setRecords({ ...records, [st._id]: 'Present' })} /> Present
+                            </label>
+                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', color: records[st._id] === 'Absent' ? '#ef4444' : '#6b7280' }}>
+                              <input type="radio" value="Absent" checked={records[st._id] === 'Absent'} onChange={() => setRecords({ ...records, [st._id]: 'Absent' })} /> Absent
+                            </label>
+                          </div>
+                        ) : (
+                          <input type="number" min="0" max={meta.maxMarks} placeholder="0" style={{ width: '80px', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', textAlign: 'right' }} value={records[st._id] || ''} onChange={(e) => setRecords({ ...records, [st._id]: e.target.value })} />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {students.length === 0 && (
+                    <tr>
+                      <td colSpan="2" style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>No students found in the system.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <button type="submit" style={{ padding: '14px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '16px', marginTop: '10px' }}>
+              Record {type === 'attendance' ? 'Attendance' : 'Marks'} for All
             </button>
           </form>
-        </div>
-        <div className="student-card">
-          <h3>Quick Help</h3>
-          <p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-            Welcome to the Teacher Action Board. From here you can manage all primary interactions with your students.<br /><br />
-            - <strong>Attendance:</strong> Select a date and mark a student Present or Absent.<br />
-            - <strong>Assignments:</strong> Input the assignment name, scored marks, and maximum possible marks. The grade will be calculated automatically based on standard percentages.
-          </p>
         </div>
       </div>
     </div>
